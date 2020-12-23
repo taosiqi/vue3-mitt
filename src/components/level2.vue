@@ -12,9 +12,6 @@ import { getCurrentInstance } from 'vue'; //获取组件实例
 import level3 from '@/components/level3.vue'
 export default {
   name: 'level2',
-  props: {
-    msg: String
-  },
    components: {
     level3
   },

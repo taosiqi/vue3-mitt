@@ -11,9 +11,6 @@
 import {getCurrentInstance, ref} from 'vue'; //获取组件实例
 export default {
   name: 'level3',
-  props: {
-    msg: String
-  },
   setup() {
     const {ctx} = getCurrentInstance();
     let str1 = ref(1)
