@@ -1,30 +1,33 @@
 <template>
-  <div class="home">
-    <div>level1
-      -><button @click="clickOneFn">操作level3(clickOneFn)</button>
-      -><button @click="clickTwoFn">操作level3(clickTwoFn)</button>
-    </div>
-    <level2 msg="level2"/>
+  <div class="level1">
+    <div>level1</div>
+    <button @click="clickOneFn">改变level3->str1</button>
+    <button @click="clickTwoFn">改变level3->str2</button>
   </div>
+  <level2 msg="level2"/>
 </template>
 
 <script>
 import level2 from '@/components/level2.vue'
-import { getCurrentInstance } from 'vue'; //获取组件实例
+import {getCurrentInstance} from 'vue'; //获取组件实例
 export default {
   name: 'level1',
   components: {
     level2
   },
- setup() {
-      const { ctx } = getCurrentInstance();
-      function clickOneFn() {
-          ctx.$emitter.emit('str1', { data: 'level1传过来的' });
-      }
-      function clickTwoFn() {
-          ctx.$emitter.emit('str2', { data: 'level1传过来的' });
-      }
-      return { clickOneFn,clickTwoFn };
+  setup() {
+    const {ctx} = getCurrentInstance();
+
+    function clickOneFn() {
+      // emit用来发布一个事件，第一个参数是订阅名称，第二个参数是需要传递的参数
+      ctx.$emitter.emit('str1', {data: '改变str1'});
+    }
+
+    function clickTwoFn() {
+      ctx.$emitter.emit('str2', {data: '改变str2'});
+    }
+
+    return {clickOneFn, clickTwoFn};
   }
 }
 </script>

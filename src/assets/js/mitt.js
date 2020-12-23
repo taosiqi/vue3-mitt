@@ -1,41 +1,60 @@
 module.exports = function (n) {
-	return {
-		all: (n = n || new Map()), //实例化一个map结构的all
-		on: function (e, t) {
-      var i = n.get(e); //get查询map对象
-      /*
-      * 有两种情况
-      * if i为undefined，则(i && i.push(t))为false， 执行||右边，往map对象里面set一个方法
-      * else i不为undefined，则往i里面push传入的t方法。这也是为啥项目热更新后，点击emit会执行多次的原因
-      */
-			(i && i.push(t)) || n.set(e, [t]);
-		},
-		off: function (e, t) {
-      var i = n.get(e);//get查询map对象
-      /*
-      * 有两种情况
-      * if i为undefined，则不处理（传入了不存在的卸载监听方法名）
-      * else 使用splice删除方法。这里巧用了无符号右移运算符，我们知道indexOf存在会返回字符串出现的位置，不存在会返回-1，当不存在时
-      * 返回一个i.indexOf(t) >>> 0=4294967295，splice自然无法截取到
-      * 如果存在的话，依然会返回正确的位置提供给splice截取，注意的是，第二个参数不要传入匿名函数（不要使用箭头函数，indexOf无法判断，会一直返回-1，导致off失败,小伙伴门可以尝试一下， 两个匿名函数不是同一个内存地址，indexof判是强等于）
-      * （https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Unsigned_right_shift，如果是正数，返回正数，如果是负数返回负数+2的32次方）
-      */
-			i && i.splice(i.indexOf(t) >>> 0, 1);
+  //发布订阅模式
+  return {
+    /**
+     * 实例化一个Map结构的n，用于管理订阅者
+     */
+    all: (n = n || new Map()),
+    /**
+     * on方法用于订阅一个事件
+     * @param e (string | symbol) 事件名
+     * @param t Function  回调方法
+     */
+    on: function (e, t) {
+      var i = n.get(e); //get方法用于返回键对应的值，如果不存在，则返回undefined。
+      /**
+       * 分两种情况
+       * if i为undefined，则(i && i.push(t))为false， 执行 || 右边，往n里面设置键值对。
+       * else i不为undefined，则往i里面push传入的t方法。这也是为啥项目热更新后，点击emit会执行多次的原因
+       */
+      (i && i.push(t)) || n.set(e, [t]);
     },
-     /*
-      * 执行两种情况，指定事件以及所有事件*，两者逻辑一样
-      * n.get(e) || [] get查询map对象 如果为undefined 则返回一个数组，防止slice报错
-      * slice返回一个新数组，原数组不会改变，slice有两个参数，都是可选的（有些文档说第一个参数必填，以mdn为准）https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
-      * map循环方法，并把参数t船体过去
-      */
-		emit: function (e, t) {
-        (n.get(e) || []).slice().map(function (n) {
-          console.log(n);
-          n(t);
-        }),
+    /**
+     * off退订指定订阅者
+     * @param e  (string | symbol) 事件名
+     * @param t   Function 要删除的回调函数，这里是对比回调函数删除而不是key，所有务必传递正确
+     */
+    off: function (e, t) {
+      var i = n.get(e);
+      /**
+       * 分两种情况
+       * if i为undefined，则不处理（传入了不存在的订阅者）。
+       * else 使用splice达到删除功能。这里巧用了无符号右移运算符，我们知道indexOf会返回指定元素出现的位置，不存在则会返回-1，
+       * 当为-1时，(i.indexOf(t) >>> 0)===4294967295，splice自然无法截取到,这样省去了if else判断。
+       * 注意的是，第二个参数不要使用匿名函数（箭头函数），两个匿名函数不是同一个内存地址，indexOf是强等于判断，会导致退订失败。
+       * 无符号右移运算符->https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators#Unsigned_right_shift
+       */
+      i && i.splice(i.indexOf(t) >>> 0, 1);
+    },
+    /**
+     * emit用来发布一个事件
+     * @param e  (string | symbol) 事件名
+     * @param t   Any 传递的参数
+     */
+    emit: function (e, t) {
+      /**
+       * 发布事件，需要处理两种情况,1：发布指定(e)事件 2：发布(*)事件。他们传递的参数不一样
+       * (n.get(e) || []) get返回键对应的值,如果为undefined,则返回一个数组，防止slice报错。
+       * slice返回一个新数组，原数组不会改变，slice有两个参数，都是可选的（有些文档说第一个参数必填，咋们以mdn为准），
+       * https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/slice 。
+       * map循环方法，并把参数t船体过去
+       */
+      (n.get(e) || []).slice().map(function (n) {
+        n(t);
+      }),
         (n.get("*") || []).slice().map(function (n) {
           n(e, t);
         });
-		},
-	};
+    },
+  };
 };
