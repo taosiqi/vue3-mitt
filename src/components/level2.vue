@@ -16,14 +16,14 @@ export default {
     level3
   },
   setup() {
-    const { ctx } = getCurrentInstance();
+    const {proxy } = getCurrentInstance();
     // 退订所有，工具内部使用Map管理订阅者，clear实际是map自带的方法，用于移除Map的所有键值对
     function clearAllFn(){
-      ctx.$emitter.all.clear()
+      proxy.$emitter.all.clear()
     }
     // 退订指定订阅者
     function clearOneFn(){
-      ctx.$emitter.emit('clearStr1');
+      proxy.$emitter.emit('clearStr1');
     }
     return {
       clearAllFn,clearOneFn

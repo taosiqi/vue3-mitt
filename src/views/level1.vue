@@ -16,15 +16,15 @@ export default {
     level2
   },
   setup() {
-    const {ctx} = getCurrentInstance();
+    const {proxy} = getCurrentInstance();
 
     function clickOneFn() {
       // emit用来发布一个事件，第一个参数是订阅名称，第二个参数是需要传递的参数
-      ctx.$emitter.emit('str1', {data: '改变str1'});
+      proxy.$emitter.emit('str1', {data: '改变str1'});
     }
 
     function clickTwoFn() {
-      ctx.$emitter.emit('str2', {data: '改变str2'});
+      proxy.$emitter.emit('str2', {data: '改变str2'});
     }
 
     return {clickOneFn, clickTwoFn};
